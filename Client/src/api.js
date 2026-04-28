@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://todoappserver-tggh.onrender.com"
+  baseURL: "https://todoappserver-tggh.onrender.com/api"
 });
 
 export const getToday = (date) => API.get(`/today/${date}`);
