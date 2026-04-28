@@ -8,7 +8,7 @@ export default function Calendar() {
 
   const today = new Date();
   const year = today.getFullYear();
-  const month = today.getMonth(); // 0-based
+  const month = today.getMonth();
 
   useEffect(() => {
     load();
@@ -16,7 +16,7 @@ export default function Calendar() {
 
   const load = async () => {
     const res = await axios.get(
-      `http://localhost:5000/api/month/${year}/${month + 1}`
+      `https://todoappserver-tggh.onrender.com/api/month/${year}/${month + 1}`
     );
 
     const logs = res.data;
@@ -61,58 +61,78 @@ export default function Calendar() {
   };
 
   return (
-    <div className="p-4 text-white">
-      <h1 className="text-xl mb-4">Monthly Calendar</h1>
+    <div className="p-3 text-white max-w-md mx-auto">
+      <h1 className="text-lg mb-3 text-center">
+        Monthly Calendar
+      </h1>
 
-      {/* GRID */}
-      <div className="grid grid-cols-7 gap-2">
+      {/* WEEK LABELS */}
+      <div className="grid grid-cols-7 text-xs text-gray-400 mb-1">
+        {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+          <div key={i} className="text-center">
+            {d}
+          </div>
+        ))}
+      </div>
+
+      {/* CALENDAR GRID */}
+      <div className="grid grid-cols-7 gap-1">
         {days.map((d, i) => (
           <motion.div
             key={i}
-            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => setSelected(d)}
-            className={`p-3 rounded cursor-pointer text-center ${getColor(
+            className={`aspect-square flex items-center justify-center rounded text-xs cursor-pointer ${getColor(
               d.percent
             )}`}
           >
-            <div>{d.date.slice(-2)}</div>
+            {d.date.slice(-2)}
           </motion.div>
         ))}
       </div>
 
-      {/* POPUP */}
+      {/* MOBILE POPUP */}
       {selected && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center"
+          className="fixed inset-0 bg-black bg-opacity-60 flex items-end sm:items-center justify-center"
           onClick={() => setSelected(null)}
         >
-          <div
-            className="bg-gray-900 p-5 rounded w-80"
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            className="bg-gray-900 w-full sm:w-80 p-4 rounded-t-2xl sm:rounded-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="mb-3 text-lg">
+            <h2 className="mb-3 text-center">
               {selected.date}
             </h2>
 
             {!selected.tasks ? (
-              <p className="text-gray-400">
+              <p className="text-gray-400 text-center">
                 No data for this day
               </p>
             ) : (
-              selected.tasks.map((t, i) => (
-                <div key={i} className="mb-2">
-                  <span>{t.title}</span>{" "}
-                  {t.type === "boolean"
-                    ? t.completed
-                      ? "✅"
-                      : "❌"
-                    : `${t.value}/${t.goal}`}
-                </div>
-              ))
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {selected.tasks.map((t, i) => (
+                  <div
+                    key={i}
+                    className="flex justify-between text-sm"
+                  >
+                    <span>{t.title}</span>
+                    <span>
+                      {t.type === "boolean"
+                        ? t.completed
+                          ? "✅"
+                          : "❌"
+                        : `${t.value}/${t.goal}`}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
-          </div>
+          </motion.div>
         </motion.div>
       )}
     </div>
